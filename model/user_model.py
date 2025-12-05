@@ -1,4 +1,5 @@
-import sqlite3
+import redis
+import json
 from flask import jsonify, make_response
 from .user_create import create_user
 from .user_login import login_user
@@ -9,33 +10,33 @@ from .user_update import update_user
 class user_model:
     def __init__(self):
         try:
-            self.db_name = "geeky_macet.db"
-            self.con = sqlite3.connect(self.db_name, check_same_thread=False)
-            self.con.row_factory = sqlite3.Row
-            self.cur = self.con.cursor()
-            print("Sql Connection Estd")
+            self.redis = redis.Redis (
+                host='redis-17870.c82.us-east-1-2.ec2.cloud.redislabs.com',     
+                port=17870,            
+                password="Pa5s6iMXlg1V2pZ7agrTskI3atjbBH95",        
+                decode_responses=True 
+            )
+            print("Redis Connection Established")
+
         except Exception as e:
-            print(f"Some Error occured {e}")
+            print(f"Redis Connection Error: {e}")
 
 # Fahad's Side of the work Includes -> (Create and Delete)
 
     def create_c(self, data):
-        return create_user(self.cur, self.con, data)
+        return create_user(self.redis, data)
 
     def delete_d(self, id):
-        return delete_user(self.cur, self.con, id)
+        return delete_user(self.redis, id)
     
 # Extra Login Feature
     def login_l(self, data):  
-        return login_user(self.cur, self.con, data)
+        return login_user(self.redis, data)
 
-    # End of the specified Work
-
-    # READ
+# Nameera's Side of the work Includes -> (Update and Read)
     def getall(self):
-        return read_user(self.db_name)
+        return read_user(self.redis)
 
-    # UPDATE
     def update(self, id, data):
-        return update_user(self.cur, self.con, data, id)    
+        return update_user(self.redis, id, data)    
 

@@ -1,18 +1,19 @@
 import os
 import redis
-from flask import Flask
-from flask import render_template
+from flask import Flask, render_template
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, methods=["GET", "POST", "PUT", "DELETE"])
 # redis connection
-redis_cilent = redis.Redis(   
+app.redis = redis.Redis(   
     host=os.getenv("REDIS_HOST"),
     port=int(os.getenv("REDIS_PORT")),
     password=os.getenv("REDIS_PASSWORD"),
-    ssl=True
+    ssl=True,
+    decode_responses=True
 )
+print("Redis Connected Successfully")
 
 @app.route("/")
 def home():
@@ -37,12 +38,6 @@ def user_sig():
 def display():
     return render_template("view.html")
 
-
-from model.user_create import create_user
-from model.user_delete import delete_user
-from model.user_login import login_user
-from model.user_update import update_user
-from model.user_read import read_user
 from controller import user_controller  
 
 # testing
